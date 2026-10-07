@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghost Hunter AI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="game-container">
+
+    <header>
+        <div class="logo">👻</div>
+        <h1>GHOST HUNTER AI</h1>
+        <p>Survive the ghosts. Collect the souls. Escape the darkness.</p>
+    </header>
+
+    <div class="stats">
+
+        <div class="stat">
+            <span>❤️</span>
+            <label>Lives</label>
+            <strong id="lives">3</strong>
+        </div>
+
+        <div class="stat">
+            <span>💎</span>
+            <label>Souls</label>
+            <strong id="score">0</strong>
+        </div>
+
+        <div class="stat">
+            <span>⏱️</span>
+            <label>Time</label>
+            <strong id="timer">60</strong>
+        </div>
+
+        <div class="stat">
+            <span>🤖</span>
+            <label>AI</label>
+            <strong id="aiStatus">IDLE</strong>
+        </div>
+
+    </div>
+
+    <div class="game-area">
+
+        <div id="gameBoard"></div>
+
+        <div class="buttons">
+
+            <button onclick="startGame()">
+                ▶ START GAME
+            </button>
+
+            <button onclick="restartGame()">
+                🔄 RESTART
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="instructions">
+
+        <h2>🎮 HOW TO PLAY</h2>
+
+        <div class="instruction-grid">
+
+            <div>⬆️⬇️⬅️➡️</div>
+            <p>Use arrow keys to move</p>
+
+            <div>💎</div>
+            <p>Collect souls to increase score</p>
+
+            <div>👻</div>
+            <p>Escape the intelligent AI ghosts</p>
+
+            <div>🚪</div>
+            <p>Reach the exit to complete the level</p>
+
+        </div>
+
+    </div>
+
+    <div class="ai-panel">
+
+        <h2>🧠 AI SYSTEM</h2>
+
+        <p>
+            <b>Algorithm:</b> A* Pathfinding
+        </p>
+
+        <p>
+            <b>Behavior:</b> Finite State Machine
+        </p>
+
+        <p id="aiMessage">
+            AI is waiting for the player...
+        </p>
+
+    </div>
+
+    <footer>
+
+        <p>
+            Ghost Hunter AI • Intelligent Game using A* & FSM
+        </p>
+
+    </footer>
+
+</div>
+
+<script src="game.js"></script>
+
+</body>
+</html>
