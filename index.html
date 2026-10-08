@@ -1,1036 +1,159 @@
-const SIZE = 15;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <title>Ghost Hunter AI</title>
 
-/* =========================
-   GAME DATA
-========================= */
+    <link rel="stylesheet" href="style.css">
+</head>
 
-const maze = [
+<body>
 
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+<div class="game-container">
 
-    [1,0,0,0,0,0,1,0,0,0,1,0,0,0,1],
+    <!-- HEADER -->
+    <header>
 
-    [1,0,1,1,1,0,1,0,1,0,1,0,1,0,1],
+        <div class="logo">👻</div>
 
-    [1,0,1,0,0,0,0,0,1,0,0,0,1,0,1],
+        <h1>GHOST HUNTER AI</h1>
 
-    [1,0,1,0,1,1,1,0,1,1,1,0,1,0,1],
+        <p>
+            Survive the ghosts. Collect the souls. Escape the darkness.
+        </p>
 
-    [1,0,0,0,1,0,0,0,0,0,1,0,0,0,1],
+    </header>
 
-    [1,1,1,0,1,0,1,1,1,0,1,1,1,0,1],
 
-    [1,0,0,0,0,0,1,0,0,0,0,0,1,0,1],
+    <!-- STATS -->
+    <div class="stats">
 
-    [1,0,1,1,1,1,1,0,1,1,1,0,1,0,1],
+        <div class="stat">
+            <span>❤️</span>
+            <label>Lives</label>
+            <strong id="lives">3</strong>
+        </div>
 
-    [1,0,0,0,0,0,0,0,1,0,0,0,1,0,1],
+        <div class="stat">
+            <span>💎</span>
+            <label>Souls</label>
+            <strong id="score">0</strong>
+        </div>
 
-    [1,1,1,1,1,0,1,1,1,0,1,0,1,0,1],
+        <div class="stat">
+            <span>⏱️</span>
+            <label>Time</label>
+            <strong id="timer">60</strong>
+        </div>
 
-    [1,0,0,0,0,0,0,0,0,0,1,0,0,0,1],
+        <div class="stat">
+            <span>🤖</span>
+            <label>AI</label>
+            <strong id="aiStatus">IDLE</strong>
+        </div>
 
-    [1,0,1,1,1,1,1,1,1,0,1,1,1,0,1],
+    </div>
 
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
 
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    <!-- GAME AREA -->
+    <div class="game-area">
 
-];
+        <div id="gameBoard"></div>
 
 
-/* PLAYER */
+        <!-- MOBILE CONTROLS -->
+        <div class="mobile-controls">
 
-let player = {
+            <button onclick="movePlayer('up')">⬆️</button>
 
-    row: 1,
+            <div>
 
-    col: 1
+                <button onclick="movePlayer('left')">⬅️</button>
 
-};
+                <button onclick="movePlayer('down')">⬇️</button>
 
+                <button onclick="movePlayer('right')">➡️</button>
 
-/* EXIT */
+            </div>
 
-const exit = {
+        </div>
 
-    row: 13,
 
-    col: 13
+        <!-- BUTTONS -->
+        <div class="buttons">
 
-};
+            <button onclick="startGame()">
+                ▶ START GAME
+            </button>
 
+            <button onclick="restartGame()">
+                🔄 RESTART
+            </button>
 
-/* GHOSTS */
+        </div>
 
-let ghosts = [
+    </div>
 
-    {
 
-        row: 13,
+    <!-- INSTRUCTIONS -->
+    <div class="instructions">
 
-        col: 1,
+        <h2>🎮 HOW TO PLAY</h2>
 
-        state: "IDLE"
+        <div class="instruction-grid">
 
-    },
+            <div>⬆️⬇️⬅️➡️</div>
+            <p>Use arrow keys or mobile buttons to move</p>
 
-    {
+            <div>💎</div>
+            <p>Collect souls to increase your score</p>
 
-        row: 1,
+            <div>👻</div>
+            <p>Escape the intelligent AI ghosts</p>
 
-        col: 13,
+            <div>🚪</div>
+            <p>Collect all souls and reach the exit</p>
 
-        state: "IDLE"
+        </div>
 
-    }
+    </div>
 
-];
 
+    <!-- AI PANEL -->
+    <div class="ai-panel">
 
-/* SOULS */
+        <h2>🧠 AI SYSTEM</h2>
 
-let souls = [
+        <p>
+            <b>Algorithm:</b> A* Pathfinding
+        </p>
 
-    { row: 1, col: 5 },
+        <p>
+            <b>Behavior:</b> Finite State Machine
+        </p>
 
-    { row: 3, col: 3 },
+        <p id="aiMessage">
+            AI is waiting for the player...
+        </p>
 
-    { row: 5, col: 5 },
+    </div>
 
-    { row: 7, col: 9 },
 
-    { row: 9, col: 5 },
+    <!-- FOOTER -->
+    <footer>
 
-    { row: 11, col: 9 },
+        <p>
+            Ghost Hunter AI • Intelligent Game using A* & FSM
+        </p>
 
-    { row: 13, col: 11 }
+    </footer>
 
-];
+</div>
 
 
-/* GAME VARIABLES */
+<script src="game.js"></script>
 
-let score = 0;
-
-let lives = 3;
-
-let timeLeft = 60;
-
-let gameRunning = false;
-
-let timerInterval;
-
-let ghostInterval;
-
-
-/* =========================
-   DOM ELEMENTS
-========================= */
-
-const board = document.getElementById("gameBoard");
-
-const livesElement =
-    document.getElementById("lives");
-
-const scoreElement =
-    document.getElementById("score");
-
-const timerElement =
-    document.getElementById("timer");
-
-const aiStatusElement =
-    document.getElementById("aiStatus");
-
-const aiMessageElement =
-    document.getElementById("aiMessage");
-
-
-/* =========================
-   DRAW BOARD
-========================= */
-
-function drawBoard() {
-
-    board.innerHTML = "";
-
-
-    for (let row = 0; row < SIZE; row++) {
-
-        for (let col = 0; col < SIZE; col++) {
-
-            const cell =
-                document.createElement("div");
-
-            cell.classList.add("cell");
-
-
-            /* WALL */
-
-            if (maze[row][col] === 1) {
-
-                cell.classList.add("wall");
-
-            }
-
-
-            /* EXIT */
-
-            if (
-                row === exit.row &&
-                col === exit.col
-            ) {
-
-                cell.classList.add("exit");
-
-                cell.textContent = "🚪";
-            }
-
-
-            /* SOUL */
-
-            const soulExists =
-                souls.some(
-                    soul =>
-                        soul.row === row &&
-                        soul.col === col
-                );
-
-
-            if (soulExists) {
-
-                cell.classList.add("soul");
-
-                cell.textContent = "💎";
-            }
-
-
-            /* PLAYER */
-
-            if (
-                player.row === row &&
-                player.col === col
-            ) {
-
-                cell.classList.add("player");
-
-                cell.textContent = "🧙";
-            }
-
-
-            /* GHOSTS */
-
-            ghosts.forEach(ghost => {
-
-                if (
-                    ghost.row === row &&
-                    ghost.col === col
-                ) {
-
-                    cell.classList.add("ghost");
-
-                    cell.textContent = "👻";
-                }
-
-            });
-
-
-            board.appendChild(cell);
-        }
-    }
-}
-
-
-/* =========================
-   UPDATE UI
-========================= */
-
-function updateUI() {
-
-    livesElement.textContent = lives;
-
-    scoreElement.textContent = score;
-
-    timerElement.textContent = timeLeft;
-
-}
-
-
-/* =========================
-   START GAME
-========================= */
-
-function startGame() {
-
-    if (gameRunning) return;
-
-    gameRunning = true;
-
-
-    aiMessageElement.textContent =
-        "AI is analyzing the player's position...";
-
-
-    timerInterval =
-        setInterval(() => {
-
-            timeLeft--;
-
-            updateUI();
-
-
-            if (timeLeft <= 0) {
-
-                gameOver();
-
-            }
-
-        }, 1000);
-
-
-    ghostInterval =
-        setInterval(() => {
-
-            moveGhosts();
-
-        }, 700);
-
-
-    drawBoard();
-}
-
-
-/* =========================
-   RESTART GAME
-========================= */
-
-function restartGame() {
-
-    clearInterval(timerInterval);
-
-    clearInterval(ghostInterval);
-
-
-    player = {
-
-        row: 1,
-
-        col: 1
-
-    };
-
-
-    ghosts = [
-
-        {
-
-            row: 13,
-
-            col: 1,
-
-            state: "IDLE"
-
-        },
-
-        {
-
-            row: 1,
-
-            col: 13,
-
-            state: "IDLE"
-
-        }
-
-    ];
-
-
-    souls = [
-
-        { row: 1, col: 5 },
-
-        { row: 3, col: 3 },
-
-        { row: 5, col: 5 },
-
-        { row: 7, col: 9 },
-
-        { row: 9, col: 5 },
-
-        { row: 11, col: 9 },
-
-        { row: 13, col: 11 }
-
-    ];
-
-
-    score = 0;
-
-    lives = 3;
-
-    timeLeft = 60;
-
-    gameRunning = false;
-
-
-    aiStatusElement.textContent = "IDLE";
-
-    aiMessageElement.textContent =
-        "AI is waiting for the player...";
-
-
-    updateUI();
-
-    drawBoard();
-}
-
-
-/* =========================
-   PLAYER MOVEMENT
-========================= */
-
-document.addEventListener(
-    "keydown",
-    function(event) {
-
-        if (!gameRunning) return;
-
-
-        let newRow = player.row;
-
-        let newCol = player.col;
-
-
-        if (event.key === "ArrowUp") {
-
-            newRow--;
-
-        }
-
-        else if (event.key === "ArrowDown") {
-
-            newRow++;
-
-        }
-
-        else if (event.key === "ArrowLeft") {
-
-            newCol--;
-
-        }
-
-        else if (event.key === "ArrowRight") {
-
-            newCol++;
-
-        }
-
-        else {
-
-            return;
-
-        }
-
-
-        movePlayerTo(newRow, newCol);
-
-    }
-);
-
-
-/* =========================
-   MOBILE MOVEMENT
-========================= */
-
-function movePlayer(direction) {
-
-    if (!gameRunning) return;
-
-
-    let newRow = player.row;
-
-    let newCol = player.col;
-
-
-    if (direction === "up") {
-
-        newRow--;
-
-    }
-
-    if (direction === "down") {
-
-        newRow++;
-
-    }
-
-    if (direction === "left") {
-
-        newCol--;
-
-    }
-
-    if (direction === "right") {
-
-        newCol++;
-
-    }
-
-
-    movePlayerTo(newRow, newCol);
-}
-
-
-/* =========================
-   COMMON PLAYER MOVE
-========================= */
-
-function movePlayerTo(newRow, newCol) {
-
-    if (
-        newRow < 0 ||
-        newRow >= SIZE ||
-        newCol < 0 ||
-        newCol >= SIZE
-    ) {
-
-        return;
-    }
-
-
-    if (!isWalkable(newRow, newCol)) {
-
-        return;
-    }
-
-
-    player.row = newRow;
-
-    player.col = newCol;
-
-
-    collectSoul();
-
-    checkGhostCollision();
-
-    checkExit();
-
-    drawBoard();
-}
-
-
-/* =========================
-   WALKABLE CHECK
-========================= */
-
-function isWalkable(row, col) {
-
-    return (
-        row >= 0 &&
-        row < SIZE &&
-        col >= 0 &&
-        col < SIZE &&
-        maze[row][col] === 0
-    );
-}
-
-
-/* =========================
-   SOUL COLLECTION
-========================= */
-
-function collectSoul() {
-
-    const index =
-        souls.findIndex(
-            soul =>
-                soul.row === player.row &&
-                soul.col === player.col
-        );
-
-
-    if (index !== -1) {
-
-        souls.splice(index, 1);
-
-        score += 10;
-
-        updateUI();
-
-    }
-}
-
-
-/* =========================
-   EXIT CHECK
-========================= */
-
-function checkExit() {
-
-    if (
-        player.row === exit.row &&
-        player.col === exit.col
-    ) {
-
-        if (souls.length === 0) {
-
-            winGame();
-
-        }
-
-        else {
-
-            aiMessageElement.textContent =
-                "Collect all souls before escaping!";
-
-        }
-    }
-}
-
-
-/* =========================
-   GHOST COLLISION
-========================= */
-
-function checkGhostCollision() {
-
-    ghosts.forEach(ghost => {
-
-        if (
-            ghost.row === player.row &&
-            ghost.col === player.col
-        ) {
-
-            lives--;
-
-            updateUI();
-
-
-            if (lives <= 0) {
-
-                gameOver();
-
-            }
-
-            else {
-
-                player.row = 1;
-
-                player.col = 1;
-
-
-                aiMessageElement.textContent =
-                    "Ghost caught you! Be careful!";
-
-                drawBoard();
-            }
-        }
-
-    });
-}
-
-
-/* =========================
-   GHOST AI
-========================= */
-
-function moveGhosts() {
-
-    if (!gameRunning) return;
-
-
-    ghosts.forEach(ghost => {
-
-        const distance =
-            Math.abs(
-                ghost.row - player.row
-            ) +
-            Math.abs(
-                ghost.col - player.col
-            );
-
-
-        /* FINITE STATE MACHINE */
-
-        if (distance <= 7) {
-
-            ghost.state = "CHASE";
-
-        }
-
-        else if (distance <= 11) {
-
-            ghost.state = "SEARCH";
-
-        }
-
-        else {
-
-            ghost.state = "PATROL";
-
-        }
-
-
-        aiStatusElement.textContent =
-            ghost.state;
-
-
-        /* A* PATHFINDING */
-
-        const path =
-            aStar(
-
-                {
-                    row: ghost.row,
-                    col: ghost.col
-                },
-
-                {
-                    row: player.row,
-                    col: player.col
-                }
-
-            );
-
-
-        if (path.length > 1) {
-
-            ghost.row =
-                path[1].row;
-
-            ghost.col =
-                path[1].col;
-        }
-
-    });
-
-
-    aiMessageElement.textContent =
-        "Ghost AI is using A* to find the shortest path to the player.";
-
-
-    checkGhostCollision();
-
-    drawBoard();
-}
-
-
-/* =========================
-   A* ALGORITHM
-========================= */
-
-function aStar(start, target) {
-
-    const openSet = [];
-
-    const closedSet = new Set();
-
-    const cameFrom = new Map();
-
-    const gScore = new Map();
-
-    const fScore = new Map();
-
-
-    const startKey =
-        `${start.row},${start.col}`;
-
-
-    gScore.set(startKey, 0);
-
-    fScore.set(
-        startKey,
-        heuristic(start, target)
-    );
-
-
-    openSet.push(start);
-
-
-    while (openSet.length > 0) {
-
-        openSet.sort(
-            (a, b) =>
-                getScore(a, fScore) -
-                getScore(b, fScore)
-        );
-
-
-        const current =
-            openSet.shift();
-
-
-        const currentKey =
-            `${current.row},${current.col}`;
-
-
-        if (
-            current.row === target.row &&
-            current.col === target.col
-        ) {
-
-            return reconstructPath(
-                cameFrom,
-                current
-            );
-        }
-
-
-        closedSet.add(currentKey);
-
-
-        const neighbors =
-            getNeighbors(current);
-
-
-        for (const neighbor of neighbors) {
-
-            const neighborKey =
-                `${neighbor.row},${neighbor.col}`;
-
-
-            if (closedSet.has(neighborKey)) {
-
-                continue;
-
-            }
-
-
-            const tentativeG =
-                (gScore.get(currentKey) ?? Infinity) + 1;
-
-
-            if (
-                tentativeG <
-                (gScore.get(neighborKey) ?? Infinity)
-            ) {
-
-                cameFrom.set(
-                    neighborKey,
-                    current
-                );
-
-
-                gScore.set(
-                    neighborKey,
-                    tentativeG
-                );
-
-
-                fScore.set(
-                    neighborKey,
-                    tentativeG +
-                    heuristic(
-                        neighbor,
-                        target
-                    )
-                );
-
-
-                if (
-                    !openSet.some(
-                        node =>
-                            node.row === neighbor.row &&
-                            node.col === neighbor.col
-                    )
-                ) {
-
-                    openSet.push(neighbor);
-
-                }
-
-            }
-        }
-    }
-
-
-    return [];
-}
-
-
-/* =========================
-   A* HEURISTIC
-========================= */
-
-function heuristic(a, b) {
-
-    return Math.abs(
-        a.row - b.row
-    ) +
-    Math.abs(
-        a.col - b.col
-    );
-}
-
-
-/* =========================
-   SCORE HELPER
-========================= */
-
-function getScore(node, scores) {
-
-    return (
-        scores.get(
-            `${node.row},${node.col}`
-        ) ?? Infinity
-    );
-}
-
-
-/* =========================
-   NEIGHBORS
-========================= */
-
-function getNeighbors(node) {
-
-    const directions = [
-
-        { row: -1, col: 0 },
-
-        { row: 1, col: 0 },
-
-        { row: 0, col: -1 },
-
-        { row: 0, col: 1 }
-
-    ];
-
-
-    const neighbors = [];
-
-
-    directions.forEach(direction => {
-
-        const row =
-            node.row + direction.row;
-
-        const col =
-            node.col + direction.col;
-
-
-        if (isWalkable(row, col)) {
-
-            neighbors.push({
-                row: row,
-                col: col
-            });
-
-        }
-
-    });
-
-
-    return neighbors;
-}
-
-
-/* =========================
-   RECONSTRUCT PATH
-========================= */
-
-function reconstructPath(
-    cameFrom,
-    current
-) {
-
-    const path = [current];
-
-
-    let currentKey =
-        `${current.row},${current.col}`;
-
-
-    while (cameFrom.has(currentKey)) {
-
-        current =
-            cameFrom.get(currentKey);
-
-
-        path.unshift(current);
-
-
-        currentKey =
-            `${current.row},${current.col}`;
-    }
-
-
-    return path;
-}
-
-
-/* =========================
-   WIN
-========================= */
-
-function winGame() {
-
-    gameRunning = false;
-
-
-    clearInterval(timerInterval);
-
-    clearInterval(ghostInterval);
-
-
-    aiStatusElement.textContent =
-        "DEFEATED";
-
-
-    aiMessageElement.textContent =
-        "Mission completed! You escaped the ghosts!";
-
-
-    setTimeout(() => {
-
-        alert(
-            "🎉 YOU WIN!\n\n" +
-            "Souls Collected: " +
-            score
-        );
-
-    }, 100);
-}
-
-
-/* =========================
-   GAME OVER
-========================= */
-
-function gameOver() {
-
-    gameRunning = false;
-
-
-    clearInterval(timerInterval);
-
-    clearInterval(ghostInterval);
-
-
-    aiStatusElement.textContent =
-        "GAME OVER";
-
-
-    aiMessageElement.textContent =
-        "The ghosts caught you!";
-
-
-    setTimeout(() => {
-
-        alert(
-            "👻 GAME OVER!\n\n" +
-            "Your Score: " +
-            score
-        );
-
-    }, 100);
-}
-
-
-/* =========================
-   INITIAL GAME
-========================= */
-
-updateUI();
-
-drawBoard();
+</body>
+</html>
